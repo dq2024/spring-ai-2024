@@ -1,7 +1,7 @@
 package ProgrammingAssignment1;
 import java.util.*;
 
-public class Main {
+public class BudgetID {
 
     public static class Item {
         String name;
