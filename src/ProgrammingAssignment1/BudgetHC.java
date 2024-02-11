@@ -60,9 +60,9 @@ public class BudgetHC {
 
 
             for(int j = 0; j < initialStateSize; j++){
-                Item randomKey = itemList.get(random.nextInt(itemList.size()));
-                if(!currState.contains(randomKey))
-                    currState.add(randomKey);
+                Item randomItem = itemList.get(random.nextInt(itemList.size()));
+                if(!currState.contains(randomItem))
+                    currState.add(randomItem);
             }
 
             errorObj current = getErrorObj(currState, targetVal, budget);
