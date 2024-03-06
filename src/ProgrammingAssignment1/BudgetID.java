@@ -1,7 +1,7 @@
-package ProgrammingAssignment1;
+//package ProgrammingAssignment1;
 import java.util.*;
 
-public class Main {
+public class BudgetID {
 
     public static class Item {
         String name;
@@ -38,8 +38,11 @@ public class Main {
     }
     public static void iterativeDeepening(List<Item> itemList, int targetVal,
                                           int budget, String flag){
+        int maxDepth = itemList.size();
+        int depth = 0;
         boolean result = false;
-        for(int depth = 1; depth < itemList.size(); depth++){
+        while(true){
+            depth++;
             if(flag.equals("V")){
                 if(depth == 1){
                     System.out.println("Depth = " + depth + ".");
@@ -48,52 +51,55 @@ public class Main {
                     System.out.println("\nDepth = " + depth + ".");
                 }
             }
-            result = search(itemList, new ArrayList<>(), 0, 0, 0, depth, targetVal, budget, flag);
+            result = search(itemList, new ArrayList<>(), 0, 0, depth, targetVal, budget, flag);
             if(result){
                 break;
             }
+            if(depth == maxDepth){
+                break;
+            }
         }
-        if(!result && flag.equals("C")){
+        if(!result){
+            if(flag.equals("V")){
+                System.out.println();
+            }
             System.out.println("No Solution");
         }
+
     }
-    public static boolean search(List<Item> itemList, List<Item> path,
-                                 int currVal, int currCost, int idx, int depth,
-                                 int targetVal, int budget, String flag){
-        if(depth == 0 || idx == itemList.size()){
-            if(!path.isEmpty() && currCost <= budget){
+    public static boolean search(List<Item> itemList, List<Item> path, int currVal, int currCost, int depth, int targetVal, int budget, String flag){
+
+        if(currVal >= targetVal){
+            if(flag.equals("C")){
+                System.out.print("Found solution " );
+            }
+            else{
+                System.out.print("\nFound solution " );
+            }
+            printVerbose(path, currVal, currCost);
+            return true;
+        }
+        if(depth == 0 || currCost > budget){
+            return false;
+        }
+
+        for(Item item : itemList){
+            if(!path.isEmpty() && item.name.compareTo(path.get(path.size() - 1).name) <= 0){
+                continue;
+            }
+            List<Item> nextPath = new ArrayList<>(path);
+            nextPath.add(item);
+            int nextVal = currVal + item.value;
+            int nextCost = currCost + item.cost;
+
+            if(nextCost <= budget){
                 if(flag.equals("V")){
-                    printVerbose(path, currVal, currCost);
+                    printVerbose(nextPath, nextVal, nextCost);
                 }
-                // we have found goal state
-                if(currVal >= targetVal){
-                    System.out.println("\nFound solution " + path + ". Value = " + currVal + ". Cost = " + currCost + ".");
+                if(search(itemList, nextPath, nextVal, nextCost, depth - 1, targetVal, budget, flag)){
                     return true;
                 }
-
             }
-            return false;
-        }
-
-        if(idx >= itemList.size()){
-            return false;
-        }
-
-        Item currItem = itemList.get(idx);
-
-        if(currCost + currItem.cost <= budget){
-            path.add(currItem);
-            if(search(itemList, new ArrayList<>(path), currVal + currItem.value, currCost + currItem.cost,
-                    idx + 1, depth - 1, targetVal, budget, flag)){
-                return true;
-            }
-            // backtracking step
-            path.remove(path.size() - 1);
-        }
-
-        if(search(itemList, new ArrayList<>(path), currVal, currCost, idx + 1, depth,
-                targetVal, budget, flag)){
-            return true;
         }
         return false;
     }
@@ -102,18 +108,18 @@ public class Main {
         for(Item item : path){
             joiner.add(item.name);
         }
-        System.out.println("{" + joiner.toString() + "}. Value = " + currVal + ". Cost = " + currCost + ".");
+        System.out.println("{" + joiner + "}. Value = " + currVal + ". Cost = " + currCost + ".");
     }
 }
 /*
-INITIAL THOUGHTS:
+INITIAL THOUGHTS, changes tbd:
 
 
 iterativeDeepening(itemList, targetValue, budget, flag):
     - loop from 1 to N, the variable here will be depth
     - print out Depth 1: Depth 2: etc, before calling our modified dfs search
 
-dfs():
+search():
     - base case when depth is 0, that means we need to check if the state is valid
         - if it is, AND it exceeds target value then we are done
         - if it is just a potential goal state, then we print accordingly and continue with our search
